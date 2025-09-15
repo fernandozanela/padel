@@ -15,4 +15,3 @@
     mysqli_close($conexao);
 ?>
 <?php include("layout/footer.php"); ?>
-

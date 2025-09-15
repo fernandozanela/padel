@@ -1,26 +1,17 @@
-<?php include("layout/header.php"); ?>
-
 <?php
-include_once("_conexao.php");
-$conexao = conectaBD();
+require_once "_conexao.php";
+require_once "repositories/MySQLClubeRepository.php";
+require_once "services/ClubeService.php";
 
-$nome = $_POST["input_nome"];
-$telefone        = $_POST["input_telefone"];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $repository = new MySQLClubeRepository($conn);
+    $service = new ClubeService($repository);
 
-$sql_max = "SELECT MAX(id_clube) AS max_id FROM clube";
-$res_max = mysqli_query($conexao, $sql_max);
-$row = mysqli_fetch_assoc($res_max);
-$novo_id = $row['max_id'] + 1;
-
-$sql = "INSERT INTO clube (id_clube, nome, telefone)
-        VALUES ($novo_id, '$nome', '$telefone')";
-
-if (mysqli_query($conexao, $sql)) {
-    echo "Clube cadastrado com sucesso!";
-} else {
-    echo "Erro ao cadastrar: " . mysqli_error($conexao);
+    try {
+        $service->cadastrarClube($_POST['nome'], $_POST['cidade']);
+        header('Location: clubeSelect.php?msg=created');
+        exit;
+    } catch (Exception $e) {
+        echo "Erro: " . $e->getMessage();
+    }
 }
-
-mysqli_close($conexao);
-?>
-<?php include("layout/footer.php"); ?>

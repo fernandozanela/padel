@@ -1,20 +1,13 @@
-<?php include("layout/header.php"); ?>
-
 <?php
-include_once("_conexao.php");
-$conexao = conectaBD();
+require_once "_conexao.php";
+require_once "repositories/MySQLClubeRepository.php";
+require_once "services/ClubeService.php";
 
-$id = $_GET["var_id"];
+if (isset($_GET['id'])) {
+    $repository = new MySQLClubeRepository($conn);
+    $service = new ClubeService($repository);
 
-$sql = "DELETE FROM clube WHERE id_clube = $id";
-
-if (mysqli_query($conexao, $sql)) {
-    echo "Clube excluído com sucesso!<br><br>";
-    echo "<a href='clubeSelect.php'>Voltar à lista</a>";
-} else {
-    echo "Erro ao excluir: " . mysqli_error($conexao);
+    $service->deletarClube($_GET['id']);
+    header('Location: clubeSelect.php?msg=deleted');
+    exit;
 }
-
-mysqli_close($conexao);
-?>
-<?php include("layout/footer.php"); ?>

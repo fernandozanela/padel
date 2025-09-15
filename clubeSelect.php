@@ -1,44 +1,51 @@
-<?php include("layout/header.php"); ?>
-<?php include_once("_conexao.php"); ?>
+<?php
+require_once "_conexao.php";
+require_once "repositories/MySQLClubeRepository.php";
+require_once "services/ClubeService.php";
 
-<div class="container mt-5">
-    <div class="card shadow p-4">
-        <h2 class="mb-4 text-primary">Lista de Clubes</h2>
+$repository = new MySQLClubeRepository($conn);
+$service = new ClubeService($repository);
 
-        <table class="table table-bordered table-striped">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                include_once("_conexao.php");
-                $conexao = conectaBD();
-                $sql = "SELECT * FROM clube";
-                $res = mysqli_query($conexao, $sql);
+$clubes = $service->listarClubes();
+?>
+<!doctype html>
+<html>
 
-                while ($c = mysqli_fetch_assoc($res)) {
-                    echo "<tr>
-                    <td>{$c['id_clube']}</td>
-                    <td>{$c['nome']}</td>
-                    <td>{$c['telefone']}</td>
-                    <td>
-                        <a href='clubeEditar.php?var_id={$c['id_clube']}&var_nome={$c['nome']}&var_telefone={$c['telefone']}' class='btn btn-sm btn-warning'>Editar</a>
-                        <a href='clubeDelete.php?var_id={$c['id_clube']}' class='btn btn-sm btn-danger' onclick=\"return confirm('Confirmar exclusão?')\">Excluir</a>
-                    </td>
-                  </tr>";
-                }
+<head>
+    <meta charset="utf-8">
+    <title>Lista de Clubes</title>
+</head>
 
-                mysqli_close($conexao);
-                ?>
-            </tbody>
-        </table>
+<body>
+    <?php if (isset($_GET['msg']) && $_GET['msg'] === 'created') echo '<p>Clube cadastrado com sucesso!</p>'; ?>
+    <a href="index.html">Voltar</a>
+    <h2>Clubes</h2>
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Cidade</th>
+            <th>Ações</th>
+        </tr>
+        <?php foreach ($clubes as $clube): ?>
+        <tr>
+            <td><?php echo $clube['id']; ?></td>
+            <td><?php echo htmlspecialchars($clube['nome']); ?></td>
+            <td><?php echo htmlspecialchars($clube['cidade']); ?></td>
+            <td>
+                <a href="clubeEditar.php?id=<?php echo $clube['id']; ?>">Editar</a> |
+                <a href="clubeDelete.php?id=<?php echo $clube['id']; ?>"
+                    onclick="return confirm('Deletar?')">Deletar</a>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+    <h3>Novo Clube</h3>
+    <form method="POST" action="clubeInsert.php">
+        Nome: <input type="text" name="nome" required><br>
+        Cidade: <input type="text" name="cidade" required><br>
+        <button type="submit">Salvar</button>
+    </form>
+</body>
 
-        <a href="clube.php" class="btn btn-success mt-3">Cadastrar Novo Clube</a>
-    </div>
-</div>
-<?php include("layout/footer.php"); ?>
+</html>

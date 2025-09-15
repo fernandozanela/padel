@@ -1,28 +1,13 @@
-<?php include("layout/header.php"); ?>
-
 <?php
-include_once("_conexao.php");
-$conexao = conectaBD();
+require_once "_conexao.php";
+require_once "repositories/MySQLClubeRepository.php";
+require_once "services/ClubeService.php";
 
-$id = $_POST["input_id_clube"];
-$nome = $_POST["input_nome"];
-$telefone = $_POST["input_telefone"];
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $repository = new MySQLClubeRepository($conn);
+    $service = new ClubeService($repository);
 
-$sql = "UPDATE clube 
-        SET nome = '$nome', telefone = '$telefone'
-        WHERE id_clube = $id";
-
-if (mysqli_query($conexao, $sql)) {
-    echo "Clube atualizado com sucesso!<br><br>";
-    echo "<a href='clubeSelect.php'></a>";
-} else {
-    echo "Erro ao atualizar: " . mysqli_error($conexao);
+    $service->atualizarClube($_POST['id'], $_POST['nome'], $_POST['cidade']);
+    header('Location: clubeSelect.php?msg=updated');
+    exit;
 }
-
-mysqli_close($conexao);
-?>
-<div class="container mt-3">
-    <a href="jogadorSelect.php" class="btn btn-primary">Voltar à lista</a>
-</div>
-
-<?php include("layout/footer.php"); ?>

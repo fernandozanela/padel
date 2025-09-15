@@ -1,0 +1,2 @@
+# Garante que index.php tenha prioridade como documento inicial
+DirectoryIndex index.php index.html
